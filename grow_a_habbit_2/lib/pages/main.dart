@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'RegisterPage.dart';
+import 'register_page.dart';
 
 void main() => runApp(MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: HomePage(),
+      home: RegisterPage(),
     ));
