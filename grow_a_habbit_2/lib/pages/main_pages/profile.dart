@@ -1,6 +1,9 @@
 import 'dart:ui';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:grow_a_habbit_2/pages/constants/constants.dart';
+import 'package:grow_a_habbit_2/services/auth.dart';
 
 class Profile extends StatefulWidget {
   const Profile({Key? key}) : super(key: key);
@@ -173,7 +176,9 @@ class _ProfileState extends State<Profile> {
                             TextStyle(fontFamily: 'Lato', fontSize: 20, color: Color(0xFF156217)),
                       ),
                     ),
-                    onPressed: () {},
+                    onPressed: () {
+                      FirebaseAuth.instance.signOut();
+                    },
                   )),
                 ),
               ),
@@ -192,7 +197,54 @@ class _ProfileState extends State<Profile> {
                       side: MaterialStateProperty.all(
                           const BorderSide(color: Colors.black, width: 2.67)),
                     ),
-                    onPressed: () {},
+                    onPressed: () {
+                      showDialog(
+                          context: context,
+                          builder: (context) {
+                            return AlertDialog(
+                                title: const Center(child: Text('Are you sure to delete account?')),
+                                content: Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                    children: [
+                                      ElevatedButton(
+                                          child: const Text('Yes'),
+                                          onPressed: () {},
+                                          style: ButtonStyle(
+                                            shape:
+                                                MaterialStateProperty.all<RoundedRectangleBorder>(
+                                                    RoundedRectangleBorder(
+                                                        borderRadius: BorderRadius.circular(20),
+                                                        side: const BorderSide(
+                                                            color: kPrimaryText, width: 2.67))),
+                                            backgroundColor: MaterialStateProperty.all(
+                                                kPrimaryButtonBackgrounColor),
+                                            foregroundColor:
+                                                MaterialStateProperty.all(kPrimaryGreen),
+                                            padding: MaterialStateProperty.all(
+                                                const EdgeInsets.symmetric(vertical: 12.5)),
+                                          )),
+                                      ElevatedButton(
+                                          child: const Text('No'),
+                                          onPressed: () {
+                                            Navigator.of(context).pop();
+                                          },
+                                          style: ButtonStyle(
+                                            shape:
+                                                MaterialStateProperty.all<RoundedRectangleBorder>(
+                                                    RoundedRectangleBorder(
+                                                        borderRadius: BorderRadius.circular(20),
+                                                        side: const BorderSide(
+                                                            color: kPrimaryText, width: 2.67))),
+                                            backgroundColor: MaterialStateProperty.all(
+                                                kPrimaryButtonBackgrounColor),
+                                            foregroundColor:
+                                                MaterialStateProperty.all(kPrimaryGreen),
+                                            padding: MaterialStateProperty.all(
+                                                const EdgeInsets.symmetric(vertical: 12.5)),
+                                          ))
+                                    ]));
+                          });
+                    },
                     child: const Text(
                       'Delete account',
                       style: TextStyle(fontFamily: 'Lato', fontSize: 20, color: Color(0xFFCA5A4E)),

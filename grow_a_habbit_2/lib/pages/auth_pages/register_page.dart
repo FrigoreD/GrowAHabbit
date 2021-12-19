@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:grow_a_habbit_2/pages/constants.dart';
+import 'package:grow_a_habbit_2/pages/constants/constants.dart';
 
 class RegisterPage extends StatelessWidget {
   const RegisterPage({Key? key}) : super(key: key);

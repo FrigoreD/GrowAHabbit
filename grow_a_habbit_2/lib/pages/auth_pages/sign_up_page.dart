@@ -1,20 +1,27 @@
 import 'package:flutter/material.dart';
-import 'package:grow_a_habbit_2/pages/constants.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:grow_a_habbit_2/data/user.dart';
+import 'package:grow_a_habbit_2/pages/constants/constants.dart';
+import 'package:grow_a_habbit_2/services/auth.dart';
 
-class SignInPage extends StatefulWidget {
-  const SignInPage({Key? key}) : super(key: key);
+class SignUpPage extends StatefulWidget {
+  const SignUpPage({Key? key}) : super(key: key);
 
   @override
-  State<SignInPage> createState() => _SignInPageState();
+  State<SignUpPage> createState() => _SignUpPageState();
 }
 
-class _SignInPageState extends State<SignInPage> {
+class _SignUpPageState extends State<SignUpPage> {
+  final AuthService _authService = AuthService();
+
   final _emailController = TextEditingController();
   final _passController = TextEditingController();
-  String? errorText;
+  final _passConfController = TextEditingController();
 
   FocusNode focusEmail = FocusNode();
   FocusNode focusPass = FocusNode();
+  FocusNode focusConfPass = FocusNode();
+
   @override
   void initState() {
     super.initState();
@@ -24,27 +31,51 @@ class _SignInPageState extends State<SignInPage> {
     focusPass.addListener(() {
       setState(() {});
     });
+    focusConfPass.addListener(() {
+      setState(() {});
+    });
   }
 
   @override
   void dispose() {
     _emailController.dispose();
     _passController.dispose();
+    _passConfController.dispose();
     focusEmail.dispose();
     focusPass.dispose();
+    focusConfPass.dispose();
     super.dispose();
   }
 
-  void _submitForm() {
+  void _submitForm() async {
     final login = _emailController.text;
     final password = _passController.text;
-    if (login == '' && password == '') {
-      errorText = null;
-      Navigator.of(context).pushReplacementNamed('main_page');
+    final passConfirm = _passConfController.text;
+    UserAuth? user;
+    if (login.isEmpty && password.isEmpty) return;
+    if (passConfirm == password) {
+      user = await _authService.signUpWithEmainAndPassword(login.trim(), password.trim());
     } else {
-      errorText = 'Не верный логин и пароль';
+      Fluttertoast.showToast(
+          msg: "Passwords don't match",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.CENTER,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 16.0);
     }
-    setState(() {});
+    if (user == null) {
+      Fluttertoast.showToast(
+          msg: "Can't SignUp you  Please check your email/password",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.CENTER,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 16.0);
+    } else {
+      _emailController.clear();
+      _passController.clear();
+    }
   }
 
   @override
@@ -71,7 +102,7 @@ class _SignInPageState extends State<SignInPage> {
         const Padding(
           padding: EdgeInsets.only(left: 16.0),
           child: Text(
-            "Sign in",
+            "Sign up",
             style:
                 TextStyle(fontSize: 50, color: Color.fromARGB(255, 55, 64, 76), fontFamily: 'Lato'),
           ),
@@ -89,6 +120,7 @@ class _SignInPageState extends State<SignInPage> {
                 controller: _emailController,
                 textAlign: TextAlign.center,
                 decoration: InputDecoration(
+                    floatingLabelBehavior: FloatingLabelBehavior.never,
                     contentPadding: const EdgeInsets.symmetric(vertical: 5),
                     hintText: focusEmail.hasFocus ? '' : 'Email',
                     hintStyle: const TextStyle(color: kPrimaryTexthalf, fontSize: 30),
@@ -108,7 +140,6 @@ class _SignInPageState extends State<SignInPage> {
                 style: const TextStyle(fontSize: 30, color: kPrimaryText),
                 controller: _passController,
                 textAlign: TextAlign.center,
-                obscureText: true,
                 decoration: InputDecoration(
                     contentPadding: const EdgeInsets.symmetric(vertical: 5),
                     hintText: focusPass.hasFocus ? '' : 'Password',
@@ -125,7 +156,30 @@ class _SignInPageState extends State<SignInPage> {
                       borderSide: BorderSide(color: kPrimaryText, width: 2.67),
                     )),
               ),
-              const SizedBox(height: 100),
+              const SizedBox(height: 30),
+              TextFormField(
+                // focusNode: focusConfPass,
+                cursorColor: kPrimaryText,
+                style: const TextStyle(fontSize: 30, color: kPrimaryText),
+                controller: _passConfController,
+                textAlign: TextAlign.center,
+                decoration: InputDecoration(
+                    contentPadding: const EdgeInsets.symmetric(vertical: 5),
+                    hintText: focusConfPass.hasFocus ? '' : 'Confirm Password',
+                    hintStyle: const TextStyle(color: kPrimaryTexthalf, fontSize: 30),
+                    enabledBorder: const OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(20)),
+                      borderSide: BorderSide(
+                        color: kPrimaryText,
+                        width: 2.67,
+                      ),
+                    ),
+                    focusedBorder: const OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(20)),
+                      borderSide: BorderSide(color: kPrimaryText, width: 2.67),
+                    )),
+              ),
+              const SizedBox(height: 52),
               ElevatedButton(
                   onPressed: () {
                     _submitForm();
@@ -140,12 +194,9 @@ class _SignInPageState extends State<SignInPage> {
                     fixedSize: MaterialStateProperty.all(Size.fromWidth(size.width)),
                   ),
                   child: const Text(
-                    'Login',
+                    'Sign Up',
                     style: TextStyle(fontSize: 30),
-                  )),
-              const SizedBox(height: 20),
-              if (errorText != null)
-                Text(errorText.toString(), style: const TextStyle(color: Colors.red, fontSize: 17))
+                  ))
             ])),
       ]),
     );

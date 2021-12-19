@@ -1,22 +1,25 @@
 import 'package:flutter/material.dart';
-import 'package:grow_a_habbit_2/pages/constants.dart';
+import 'package:grow_a_habbit_2/data/user.dart';
+import 'package:grow_a_habbit_2/pages/constants/constants.dart';
+import 'package:grow_a_habbit_2/services/auth.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
-class SignUpPage extends StatefulWidget {
-  const SignUpPage({Key? key}) : super(key: key);
+class SignInPage extends StatefulWidget {
+  const SignInPage({Key? key}) : super(key: key);
 
   @override
-  State<SignUpPage> createState() => _SignUpPageState();
+  State<SignInPage> createState() => _SignInPageState();
 }
 
-class _SignUpPageState extends State<SignUpPage> {
+class _SignInPageState extends State<SignInPage> {
+  final AuthService _authService = AuthService();
+
   final _emailController = TextEditingController();
   final _passController = TextEditingController();
-  final _passConfController = TextEditingController();
+  String? errorText;
 
   FocusNode focusEmail = FocusNode();
   FocusNode focusPass = FocusNode();
-  FocusNode focusConfPass = FocusNode();
-
   @override
   void initState() {
     super.initState();
@@ -26,20 +29,35 @@ class _SignUpPageState extends State<SignUpPage> {
     focusPass.addListener(() {
       setState(() {});
     });
-    focusConfPass.addListener(() {
-      setState(() {});
-    });
   }
 
   @override
   void dispose() {
     _emailController.dispose();
     _passController.dispose();
-    _passConfController.dispose();
     focusEmail.dispose();
     focusPass.dispose();
-    focusConfPass.dispose();
     super.dispose();
+  }
+
+  void _submitForm() async {
+    final login = _emailController.text;
+    final password = _passController.text;
+    if (login.isEmpty && password.isEmpty) return;
+
+    UserAuth? user = await _authService.signInWithEmainAndPassword(login.trim(), password.trim());
+    if (user == null) {
+      Fluttertoast.showToast(
+          msg: "Can't SignIn you  Please check your email/password",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.CENTER,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 16.0);
+    } else {
+      _emailController.clear();
+      _passController.clear();
+    }
   }
 
   @override
@@ -84,7 +102,6 @@ class _SignUpPageState extends State<SignUpPage> {
                 controller: _emailController,
                 textAlign: TextAlign.center,
                 decoration: InputDecoration(
-                    floatingLabelBehavior: FloatingLabelBehavior.never,
                     contentPadding: const EdgeInsets.symmetric(vertical: 5),
                     hintText: focusEmail.hasFocus ? '' : 'Email',
                     hintStyle: const TextStyle(color: kPrimaryTexthalf, fontSize: 30),
@@ -104,6 +121,7 @@ class _SignUpPageState extends State<SignUpPage> {
                 style: const TextStyle(fontSize: 30, color: kPrimaryText),
                 controller: _passController,
                 textAlign: TextAlign.center,
+                obscureText: true,
                 decoration: InputDecoration(
                     contentPadding: const EdgeInsets.symmetric(vertical: 5),
                     hintText: focusPass.hasFocus ? '' : 'Password',
@@ -120,33 +138,10 @@ class _SignUpPageState extends State<SignUpPage> {
                       borderSide: BorderSide(color: kPrimaryText, width: 2.67),
                     )),
               ),
-              const SizedBox(height: 30),
-              TextFormField(
-                focusNode: focusConfPass,
-                cursorColor: kPrimaryText,
-                style: const TextStyle(fontSize: 30, color: kPrimaryText),
-                controller: _passConfController,
-                textAlign: TextAlign.center,
-                decoration: InputDecoration(
-                    contentPadding: const EdgeInsets.symmetric(vertical: 5),
-                    hintText: focusConfPass.hasFocus ? '' : 'Confirm Password',
-                    hintStyle: const TextStyle(color: kPrimaryTexthalf, fontSize: 30),
-                    enabledBorder: const OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(20)),
-                      borderSide: BorderSide(
-                        color: kPrimaryText,
-                        width: 2.67,
-                      ),
-                    ),
-                    focusedBorder: const OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(20)),
-                      borderSide: BorderSide(color: kPrimaryText, width: 2.67),
-                    )),
-              ),
-              const SizedBox(height: 52),
+              const SizedBox(height: 100),
               ElevatedButton(
                   onPressed: () {
-                    Navigator.of(context).pushReplacementNamed('example_page');
+                    _submitForm();
                   },
                   style: ButtonStyle(
                     shape: MaterialStateProperty.all<RoundedRectangleBorder>(RoundedRectangleBorder(
@@ -158,9 +153,12 @@ class _SignUpPageState extends State<SignUpPage> {
                     fixedSize: MaterialStateProperty.all(Size.fromWidth(size.width)),
                   ),
                   child: const Text(
-                    'Sign Up',
+                    'Login',
                     style: TextStyle(fontSize: 30),
-                  ))
+                  )),
+              const SizedBox(height: 20),
+              if (errorText != null)
+                Text(errorText.toString(), style: const TextStyle(color: Colors.red, fontSize: 17))
             ])),
       ]),
     );
