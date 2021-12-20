@@ -15,6 +15,7 @@ class Profile extends StatefulWidget {
 class _ProfileState extends State<Profile> {
   @override
   Widget build(BuildContext context) {
+    final AuthService _authService = AuthService();
     return Scaffold(
       backgroundColor: Colors.white,
       body: ListView(scrollDirection: Axis.vertical, children: [
@@ -177,7 +178,7 @@ class _ProfileState extends State<Profile> {
                       ),
                     ),
                     onPressed: () {
-                      FirebaseAuth.instance.signOut();
+                      _authService.logOut();
                     },
                   )),
                 ),

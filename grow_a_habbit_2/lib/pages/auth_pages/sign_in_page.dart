@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:grow_a_habbit_2/data/user.dart';
 import 'package:grow_a_habbit_2/pages/constants/constants.dart';
 import 'package:grow_a_habbit_2/services/auth.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -45,7 +44,7 @@ class _SignInPageState extends State<SignInPage> {
     final password = _passController.text;
     if (login.isEmpty && password.isEmpty) return;
 
-    UserAuth? user = await _authService.signInWithEmainAndPassword(login.trim(), password.trim());
+    String? user = await _authService.singinUser(login.trim(), password.trim());
     if (user == null) {
       Fluttertoast.showToast(
           msg: "Can't SignIn you  Please check your email/password",

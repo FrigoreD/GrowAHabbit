@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:grow_a_habbit_2/data/user.dart';
 import 'package:grow_a_habbit_2/pages/constants/constants.dart';
 import 'package:grow_a_habbit_2/services/auth.dart';
 
@@ -51,10 +50,10 @@ class _SignUpPageState extends State<SignUpPage> {
     final login = _emailController.text;
     final password = _passController.text;
     final passConfirm = _passConfController.text;
-    UserAuth? user;
+    String? user;
     if (login.isEmpty && password.isEmpty) return;
     if (passConfirm == password) {
-      user = await _authService.signUpWithEmainAndPassword(login.trim(), password.trim());
+      user = await _authService.signUpUser(login.trim(), password.trim());
     } else {
       Fluttertoast.showToast(
           msg: "Passwords don't match",

@@ -1,38 +1,62 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:grow_a_habbit_2/data/user.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/services.dart';
+import 'package:grow_a_habbit_2/data/user_data.dart';
 
-class AuthService {
+import 'database.dart';
+
+class AuthService extends ChangeNotifier {
+  OurUser? _currentUser = OurUser();
+
+  OurUser? get getCurrentUser => _currentUser;
+
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  Future<UserAuth?> signInWithEmainAndPassword(String email, String password) async {
+  Future<String?> singinUser(String email, String password) async {
+    String retVal = 'error';
     try {
-      UserCredential result =
+      UserCredential _result =
           await _auth.signInWithEmailAndPassword(email: email, password: password);
-      User? user = result.user;
-      return UserAuth.fromFirebase(user);
-    } on FirebaseAuthException catch (e) {
+      _currentUser!.uid = _result.user!.uid;
+      _currentUser!.email = _result.user!.email;
+      retVal = 'success';
+    } catch (e) {
       return null;
     }
+    return retVal;
   }
 
-  Future<UserAuth?> signUpWithEmainAndPassword(String email, String password) async {
+  Future<String?> signUpUser(String email, String password) async {
+    String retVal = 'error';
+    OurUser _user = OurUser();
     try {
-      UserCredential result =
+      UserCredential _result =
           await _auth.createUserWithEmailAndPassword(email: email, password: password);
-      User? user = result.user;
-      return UserAuth.fromFirebase(user);
-    } on FirebaseAuthException catch (e) {
-      return null;
+      _user.uid = _result.user!.uid;
+      _user.email = _result.user!.uid;
+      String? _returnString = await OurDatabase().createUser(_user);
+      if (_returnString == 'succes') {
+        retVal = 'success';
+      }
+    } on PlatformException catch (e) {
+      retVal = e.message!;
+    } catch (e) {
+      print(e);
     }
+    return retVal;
   }
 
-  Future logOiut() async {
-    await _auth.signOut();
+  Future<String?> logOut() async {
+    String retVal = 'error';
+    try {
+      await _auth.signOut();
+      _currentUser = OurUser();
+      retVal = 'success';
+    } catch (e) {
+      print(e);
+    }
+    return retVal;
   }
 
   Stream<User?> get authStateChanges => _auth.authStateChanges();
-
-  Future<String> getCurrentUID() async {
-    return _auth.currentUser!.uid;
-  }
 }

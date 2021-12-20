@@ -10,6 +10,7 @@ import 'package:grow_a_habbit_2/pages/main_pages/main_page.dart';
 
 import 'package:flutter/services.dart';
 import 'package:grow_a_habbit_2/pages/unknown_page.dart';
+import 'package:grow_a_habbit_2/services/auth.dart';
 
 import 'main_pages/profile.dart';
 
