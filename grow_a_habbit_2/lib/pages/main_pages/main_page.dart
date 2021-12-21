@@ -1,5 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:grow_a_habbit_2/pages/constants/constants.dart';
 
 class MainPage extends StatefulWidget {
@@ -10,7 +12,6 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> {
-  final _model = ListViewModel();
   @override
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
@@ -18,101 +19,117 @@ class _MainPageState extends State<MainPage> {
       backgroundColor: kPrimaryBackground,
       appBar: const KekBar(),
       body: ListView(physics: const BouncingScrollPhysics(), children: [
-        ListViewProvider(
-          model: _model,
-          child: Column(
-            children: [
-              Center(
-                child: Image.asset(
-                  'assets/images/GrowaHabit.png',
-                  height: 250,
-                  width: 200,
-                ),
-              ),
-              const SizedBox(
-                height: 50,
-              ),
-              const Padding(
-                padding: EdgeInsets.only(bottom: 8.0),
-                child: Text(
-                  'Привычки',
-                  style: TextStyle(color: kPrimaryGreen, fontSize: 25),
-                ),
-              ),
-              Container(
-                decoration: BoxDecoration(
-                    border: Border.all(color: kPrimaryTexthalf, width: 2.67),
-                    borderRadius: BorderRadius.circular(20)),
+        Column(
+          children: [
+            Center(
+              child: Image.asset(
+                'assets/images/flower.gif',
                 height: 250,
-                margin: const EdgeInsets.all(5),
-                padding: const EdgeInsets.all(17),
-                child: const ListViewWidget(),
+                width: 200,
               ),
-              Button(size: size)
-            ],
-          ),
+            ),
+            const SizedBox(
+              height: 50,
+            ),
+            const Padding(
+              padding: EdgeInsets.only(bottom: 8.0),
+              child: Text(
+                'Habbits',
+                style: TextStyle(color: kPrimaryGreen, fontSize: 25, fontFamily: 'Lato'),
+              ),
+            ),
+            Container(
+              decoration: BoxDecoration(
+                  border: Border.all(color: kPrimaryTexthalf, width: 2.67),
+                  borderRadius: BorderRadius.circular(20)),
+              height: 250,
+              margin: const EdgeInsets.all(5),
+              padding: const EdgeInsets.all(17),
+              child: const ListViewWidget(),
+            ),
+            Button(size: size)
+          ],
         ),
       ]),
     );
   }
 }
 
-class Button extends StatelessWidget {
-  const Button({
-    Key? key,
-    required this.size,
-  }) : super(key: key);
+// final _habbitController = TextEditingController();
+
+class Button extends HookWidget {
+  const Button({Key? key, required this.size}) : super(key: key);
+
   final Size size;
 
   @override
   Widget build(BuildContext context) {
+    final FirebaseAuth auth = FirebaseAuth.instance;
+    CollectionReference users = FirebaseFirestore.instance.collection('users');
+    final User? user = auth.currentUser;
+    final uid = user!.uid;
+
+    var habbit = '';
+
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-      child: ElevatedButton(
-          onPressed: () {
-            showDialog(
-                context: context,
-                builder: (newContext) {
-                  return AlertDialog(
-                    title: const Center(child: Text('create habbit')),
-                    content: TextField(
-                        onChanged: (String value) =>
-                            ListViewProvider.read(context)?.newValue = value),
-                    actions: [
-                      Center(
-                          child: ElevatedButton(
-                        child: const Text('ADD'),
-                        onPressed: () {
-                          ListViewProvider.read(context)?.addToList();
-                          Navigator.of(context).pop();
-                        },
-                        style: ButtonStyle(
-                          shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                              RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(20),
-                                  side: const BorderSide(color: kPrimaryText, width: 2.67))),
-                          backgroundColor: MaterialStateProperty.all(kPrimaryButtonBackgrounColor),
-                          foregroundColor: MaterialStateProperty.all(kPrimaryGreen),
-                          padding:
-                              MaterialStateProperty.all(const EdgeInsets.symmetric(vertical: 12.5)),
-                          fixedSize: MaterialStateProperty.all(Size.fromWidth(size.width)),
-                        ),
-                      ))
-                    ],
-                  );
-                });
-          },
-          child: const Text('Create New Habbit'),
-          style: ButtonStyle(
-            shape: MaterialStateProperty.all<RoundedRectangleBorder>(RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
-                side: const BorderSide(color: kPrimaryText, width: 2.67))),
-            backgroundColor: MaterialStateProperty.all(kPrimaryButtonBackgrounColor),
-            foregroundColor: MaterialStateProperty.all(kPrimaryGreen),
-            padding: MaterialStateProperty.all(const EdgeInsets.symmetric(vertical: 15)),
-            fixedSize: MaterialStateProperty.all(Size.fromWidth(size.width)),
-          )),
-    );
+        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+        child: ElevatedButton(
+            onPressed: () {
+              showDialog(
+                  context: context,
+                  builder: (newContext) {
+                    return AlertDialog(
+                      title: const Center(
+                          child: Text(
+                        'create habbit',
+                        style: TextStyle(fontFamily: 'Lato'),
+                      )),
+                      content: TextField(onChanged: (val) {
+                        habbit = val;
+                      }),
+                      actions: [
+                        Center(
+                            child: ElevatedButton(
+                          child: const Text(
+                            'ADD',
+                            style: TextStyle(fontFamily: 'Lato'),
+                          ),
+                          onPressed: () async {
+                            await users.doc(uid).set({
+                              'habbit': FieldValue.arrayUnion([habbit])
+                            }, SetOptions(merge: true));
+                            Navigator.pop(context);
+                          },
+                          style: ButtonStyle(
+                            shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                                RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(20),
+                                    side: const BorderSide(color: kPrimaryborder, width: 2.67))),
+                            backgroundColor:
+                                MaterialStateProperty.all(kPrimaryButtonBackgrounColor),
+                            foregroundColor: MaterialStateProperty.all(kPrimaryGreen),
+                            padding: MaterialStateProperty.all(
+                                const EdgeInsets.symmetric(vertical: 12.5)),
+                            fixedSize: MaterialStateProperty.all(Size.fromWidth(size.width)),
+                          ),
+                        ))
+                      ],
+                    );
+                  });
+            },
+            child: const Text(
+              'Create New Habbit',
+              style: TextStyle(fontFamily: 'Lato'),
+            ),
+            style: ButtonStyle(
+              shape: MaterialStateProperty.all<RoundedRectangleBorder>(RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                  side: const BorderSide(color: kPrimaryborder, width: 2.67))),
+              backgroundColor: MaterialStateProperty.all(kPrimaryButtonBackgrounColor),
+              foregroundColor: MaterialStateProperty.all(kPrimaryGreen),
+              padding: MaterialStateProperty.all(const EdgeInsets.symmetric(vertical: 15)),
+              fixedSize: MaterialStateProperty.all(Size.fromWidth(size.width)),
+            )));
   }
 }
 
@@ -137,7 +154,7 @@ class KekBar extends StatelessWidget implements PreferredSizeWidget {
         },
         icon: const Icon(
           Icons.person_rounded,
-          color: kPrimaryText,
+          color: kPrimaryborder,
           size: 30,
         ),
         tooltip: 'Show Profile',
@@ -147,10 +164,12 @@ class KekBar extends StatelessWidget implements PreferredSizeWidget {
           highlightColor: Colors.transparent,
           splashColor: Colors.transparent,
           padding: const EdgeInsets.only(right: 16),
-          onPressed: () {},
+          onPressed: () {
+            Navigator.of(context).pushNamed('friendList_page');
+          },
           icon: const Icon(
             Icons.people,
-            color: kPrimaryText,
+            color: kPrimaryborder,
             size: 30,
           ),
           tooltip: 'Show Friends',
@@ -160,77 +179,126 @@ class KekBar extends StatelessWidget implements PreferredSizeWidget {
   }
 }
 
-class ListViewWidget extends StatelessWidget {
+class ListViewWidget extends StatefulWidget {
   const ListViewWidget({Key? key}) : super(key: key);
 
   @override
+  State<ListViewWidget> createState() => _ListViewWidgetState();
+}
+
+class _ListViewWidgetState extends State<ListViewWidget> {
+  @override
   Widget build(BuildContext context) {
+    final FirebaseAuth auth = FirebaseAuth.instance;
+    final User? user = auth.currentUser;
+    final uid = user!.uid;
     final borderStyle = RoundedRectangleBorder(
         side: const BorderSide(
-          color: kPrimaryText,
+          color: kPrimaryborder,
           width: 2.67,
         ),
         borderRadius: BorderRadius.circular(20));
-    final todoList = ListViewProvider.watch(context)?.todoList;
-    final kekw = ListViewProvider.watch(context)?.kekw;
-    return ListView.builder(
-      physics: const BouncingScrollPhysics(),
-      itemCount: todoList?.length,
-      itemBuilder: (context, index) {
-        return Card(
-          borderOnForeground: true,
-          color: kPrimaryBackground,
-          shape: borderStyle,
-          child: ListTile(
-            shape: borderStyle,
-            onLongPress: () => ListViewProvider.read(context)?.removeFromList(index),
-            title: Text(
-              todoList?[index],
-              style: const TextStyle(color: kPrimaryGreen, fontSize: 20),
-            ),
-            trailing: IconButton(
-                icon: Icon(kekw),
-                onPressed: () {} //ListViewProvider.watch(context)?.changeBox(kekw),
-                ),
-          ),
-        );
-      },
-    );
-  }
-}
+    return StreamBuilder(
+        stream: FirebaseFirestore.instance.collection('users').doc(uid).snapshots(),
+        builder: (BuildContext context, AsyncSnapshot snapshot) {
+          if (snapshot.hasError) {
+            return const Text(
+              'Something went wrong',
+            );
+          }
 
-class ListViewModel extends ChangeNotifier {
-  List todoList = ['1', '2', '3', '4'];
-  IconData kekw = Icons.check_box_outline_blank;
-  String? _newValue;
-
-  set newValue(String value) => _newValue = value;
-
-  void addToList() {
-    todoList.add(_newValue);
-    notifyListeners();
-  }
-
-  void removeFromList(index) {
-    todoList.removeAt(index);
-    notifyListeners();
-  }
-}
-
-class ListViewProvider extends InheritedNotifier<ListViewModel> {
-  final ListViewModel model;
-  const ListViewProvider({Key? key, required this.model, required Widget child})
-      : super(
-          key: key,
-          notifier: model,
-          child: child,
-        );
-  static ListViewModel? watch(BuildContext context) {
-    return context.dependOnInheritedWidgetOfExactType<ListViewProvider>()?.notifier;
-  }
-
-  static ListViewModel? read(BuildContext context) {
-    final widget = context.getElementForInheritedWidgetOfExactType<ListViewProvider>()?.widget;
-    return widget is ListViewProvider ? widget.notifier : null;
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Text("Loading");
+          }
+          if (snapshot.data['habbit'].length == 0) {
+            return const Center(child: Text(""));
+          } else {
+            return ListView.builder(
+              physics: const BouncingScrollPhysics(),
+              itemCount: snapshot.data['habbit'].length,
+              itemBuilder: (context, index) {
+                String kek = snapshot.data['habbit'][index].toString();
+                return Card(
+                  borderOnForeground: true,
+                  color: kPrimaryBackground,
+                  shape: borderStyle,
+                  child: ListTile(
+                    shape: borderStyle,
+                    onTap: () {
+                      Navigator.of(context).pushNamed('calendar_page');
+                    },
+                    onLongPress: () {
+                      showDialog(
+                          context: context,
+                          builder: (context) {
+                            return AlertDialog(
+                                title: const Center(child: Text('Are you sure to delete habbit?')),
+                                content: Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                    children: [
+                                      ElevatedButton(
+                                          child: const Text(
+                                            'Yes',
+                                            style: TextStyle(fontFamily: 'Lato'),
+                                          ),
+                                          onPressed: () {
+                                            var collection =
+                                                FirebaseFirestore.instance.collection('users');
+                                            collection.doc(uid).update({
+                                              'habbit': FieldValue.arrayRemove(
+                                                  [snapshot.data['habbit'][index]]),
+                                            });
+                                            Navigator.pop(context);
+                                          },
+                                          style: ButtonStyle(
+                                            shape:
+                                                MaterialStateProperty.all<RoundedRectangleBorder>(
+                                                    RoundedRectangleBorder(
+                                                        borderRadius: BorderRadius.circular(20),
+                                                        side: const BorderSide(
+                                                            color: kPrimaryborder, width: 2.67))),
+                                            backgroundColor: MaterialStateProperty.all(
+                                                kPrimaryButtonBackgrounColor),
+                                            foregroundColor:
+                                                MaterialStateProperty.all(kPrimaryGreen),
+                                            padding: MaterialStateProperty.all(
+                                                const EdgeInsets.symmetric(vertical: 12.5)),
+                                          )),
+                                      ElevatedButton(
+                                          child: const Text(
+                                            'No',
+                                            style: TextStyle(fontFamily: 'Lato'),
+                                          ),
+                                          onPressed: () {
+                                            Navigator.of(context).pop();
+                                          },
+                                          style: ButtonStyle(
+                                            shape:
+                                                MaterialStateProperty.all<RoundedRectangleBorder>(
+                                                    RoundedRectangleBorder(
+                                                        borderRadius: BorderRadius.circular(20),
+                                                        side: const BorderSide(
+                                                            color: kPrimaryborder, width: 2.67))),
+                                            backgroundColor: MaterialStateProperty.all(
+                                                kPrimaryButtonBackgrounColor),
+                                            foregroundColor:
+                                                MaterialStateProperty.all(kPrimaryGreen),
+                                            padding: MaterialStateProperty.all(
+                                                const EdgeInsets.symmetric(vertical: 12.5)),
+                                          ))
+                                    ]));
+                          });
+                    },
+                    title: Text(
+                      kek,
+                      style:
+                          const TextStyle(color: kPrimaryGreen, fontSize: 20, fontFamily: 'Lato'),
+                    ),
+                  ),
+                );
+              },
+            );
+          }
+        });
   }
 }

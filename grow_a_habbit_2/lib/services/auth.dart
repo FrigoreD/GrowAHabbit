@@ -1,62 +1,44 @@
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/services.dart';
+import 'package:firebase_auth/firebase_auth.dart' as auth;
 import 'package:grow_a_habbit_2/data/user_data.dart';
+import 'package:grow_a_habbit_2/services/database.dart';
 
-import 'database.dart';
+class AuthService {
+  final auth.FirebaseAuth _auth = auth.FirebaseAuth.instance;
 
-class AuthService extends ChangeNotifier {
-  OurUser? _currentUser = OurUser();
+  Future sendPasswordResetEmail(String email) async {
+    return _auth.sendPasswordResetEmail(email: email.trim());
+  }
 
-  OurUser? get getCurrentUser => _currentUser;
+  Future<OurUser?> signIn(String email, String password) async {
+    final credential = await _auth.signInWithEmailAndPassword(email: email, password: password);
+    return _userFromFireBase(credential.user);
+  }
 
-  final FirebaseAuth _auth = FirebaseAuth.instance;
+  Future<String?> signUp(String email, String password, String nickName) async {
+    final credential =
+        await _auth.createUserWithEmailAndPassword(email: email.trim(), password: password);
+    _userFromFireBase(credential.user);
+    OurUser _user = OurUser(
+        uid: credential.user!.uid,
+        email: credential.user!.email,
+        nickName: nickName.trim(),
+        habbit: []);
+    return await OurDatabase().createUser(_user);
+  }
 
-  Future<String?> singinUser(String email, String password) async {
-    String retVal = 'error';
-    try {
-      UserCredential _result =
-          await _auth.signInWithEmailAndPassword(email: email, password: password);
-      _currentUser!.uid = _result.user!.uid;
-      _currentUser!.email = _result.user!.email;
-      retVal = 'success';
-    } catch (e) {
+  Stream<OurUser?>? get user {
+    return _auth.authStateChanges().map(_userFromFireBase);
+  }
+
+  OurUser? _userFromFireBase(auth.User? user) {
+    if (user == null) {
       return null;
+    } else {
+      return OurUser(uid: user.uid, email: user.email, nickName: user.displayName);
     }
-    return retVal;
   }
 
-  Future<String?> signUpUser(String email, String password) async {
-    String retVal = 'error';
-    OurUser _user = OurUser();
-    try {
-      UserCredential _result =
-          await _auth.createUserWithEmailAndPassword(email: email, password: password);
-      _user.uid = _result.user!.uid;
-      _user.email = _result.user!.uid;
-      String? _returnString = await OurDatabase().createUser(_user);
-      if (_returnString == 'succes') {
-        retVal = 'success';
-      }
-    } on PlatformException catch (e) {
-      retVal = e.message!;
-    } catch (e) {
-      print(e);
-    }
-    return retVal;
+  Future<void> signOut() async {
+    return await _auth.signOut();
   }
-
-  Future<String?> logOut() async {
-    String retVal = 'error';
-    try {
-      await _auth.signOut();
-      _currentUser = OurUser();
-      retVal = 'success';
-    } catch (e) {
-      print(e);
-    }
-    return retVal;
-  }
-
-  Stream<User?> get authStateChanges => _auth.authStateChanges();
 }

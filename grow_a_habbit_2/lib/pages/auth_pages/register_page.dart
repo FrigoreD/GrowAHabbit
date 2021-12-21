@@ -14,7 +14,7 @@ class RegisterPage extends StatelessWidget {
             margin: const EdgeInsets.only(top: 100),
             child: const Text(
               "Grow a habit",
-              style: TextStyle(fontSize: 50, color: kPrimaryText, fontFamily: 'Lato'),
+              style: TextStyle(fontSize: 50, color: kPrimaryborder, fontFamily: 'Lato'),
             ),
           ),
           Container(
@@ -33,15 +33,16 @@ class RegisterPage extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               InkWell(
+                borderRadius: BorderRadius.circular(20),
                 onTap: () {
-                  Navigator.of(context).pushNamed('/sign_up');
+                  Navigator.of(context).pushNamed('/register_page/sign_up');
                 },
                 child: Container(
                   height: 70,
                   width: 173,
                   decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: kPrimaryText, width: 2.67)),
+                      border: Border.all(color: kPrimaryborder, width: 2.67)),
                   child: const Center(
                     child: Text(
                       'Sing up',
@@ -51,15 +52,16 @@ class RegisterPage extends StatelessWidget {
                 ),
               ),
               InkWell(
+                  borderRadius: BorderRadius.circular(20),
                   onTap: () {
-                    Navigator.of(context).pushNamed('/sign_in');
+                    Navigator.of(context).pushNamed('/register_page/sign_in');
                   },
                   child: Container(
                     height: 70,
                     width: 173,
                     decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: kPrimaryText, width: 2.67)),
+                        border: Border.all(color: kPrimaryborder, width: 2.67)),
                     child: const Center(
                       child: Text(
                         'Sing in',

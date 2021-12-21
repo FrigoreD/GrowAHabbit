@@ -17,6 +17,8 @@ dependencies:
   provider: ^6.0.1
   fluttertoast: ^8.0.8
   cloud_firestore: ^3.1.5
+  flutter_hooks: ^0.18.1
+  syncfusion_flutter_calendar: ^19.4.38
 
 dev_dependencies:
   flutter_test:
@@ -30,6 +32,7 @@ flutter:
   assets:
     - assets/images/
     - assets/images/GrowaHabit.png
+    - assets/images/flower.gif
   fonts:
      - family: Lato
        fonts:
