@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:grow_a_habbit_2/pages/constants/constants.dart';
+import 'package:flutter_application_profile/consts.dart';
 
 class FriendList extends StatefulWidget {
   const FriendList({Key? key}) : super(key: key);
@@ -24,18 +24,6 @@ class _FriendListState extends State<FriendList> {
   Widget build(BuildContext context) {
     List<FriendWidget> friendData = [];
     return Scaffold(
-        appBar: AppBar(
-          elevation: 0.0,
-          backgroundColor: kPrimaryBackground,
-          leading: IconButton(
-            iconSize: 35.0,
-            icon: const Icon(Icons.arrow_back),
-            color: Colors.black,
-            onPressed: () {
-              Navigator.pop(context);
-            },
-          ),
-        ),
         backgroundColor: kPrimaryBackground,
         body: ListView(
           scrollDirection: Axis.vertical,
@@ -81,7 +69,8 @@ class _FriendListState extends State<FriendList> {
                   const Text(
                     'Your Friends',
                     textAlign: TextAlign.left,
-                    style: TextStyle(fontFamily: 'Lato', fontSize: 20, color: Colors.black),
+                    style: TextStyle(
+                        fontFamily: 'Lato', fontSize: 20, color: Colors.black),
                   ),
                   const SizedBox(height: 20),
                   Padding(
@@ -104,7 +93,10 @@ class _FriendListState extends State<FriendList> {
                         child: const Text(
                           'add friend',
                           textAlign: TextAlign.center,
-                          style: TextStyle(fontFamily: 'Lato', fontSize: 20, color: Colors.black),
+                          style: TextStyle(
+                              fontFamily: 'Lato',
+                              fontSize: 20,
+                              color: Colors.black),
                         ),
                         onPressed: () {
                           _incriment();
@@ -143,12 +135,12 @@ class FriendWidget extends StatelessWidget {
           child: Card(
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(20.0),
-              side: const BorderSide(color: kPrimaryButtonBackgrounColor, width: 2.67),
+              side: const BorderSide(color: kPrimaryText, width: 2.67),
             ),
             color: kPrimaryBackground,
             child: ListTile(
               onTap: () {},
-              title: const Text(
+              title: Text(
                 'Friend',
                 textAlign: TextAlign.center,
                 style: TextStyle(
@@ -159,7 +151,7 @@ class FriendWidget extends StatelessWidget {
               ),
               trailing: IconButton(
                 iconSize: 30.0,
-                icon: const Icon(Icons.delete),
+                icon: Icon(Icons.delete),
                 color: Colors.black,
                 onPressed: () {
                   // ignore: avoid_print

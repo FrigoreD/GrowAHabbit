@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_profile/consts.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
-
-import 'package:grow_a_habbit_2/pages/constants/constants.dart';
 
 class CalendarWidget extends StatefulWidget {
   const CalendarWidget({Key? key}) : super(key: key);

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:grow_a_habbit_2/pages/constants/constants.dart';
-import 'calendar_widget.dart';
+import 'package:flutter_application_profile/consts.dart';
+import 'package:flutter_application_profile/widgets/calendar_widget.dart';
 
 class CalendarPage extends StatefulWidget {
   const CalendarPage({Key? key}) : super(key: key);
@@ -27,17 +27,22 @@ class _CalendarPageState extends State<CalendarPage> {
                 ),
                 child: ElevatedButton(
                   style: ButtonStyle(
-                    shape: MaterialStateProperty.all<RoundedRectangleBorder>(RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(0.0),
-                        side: const BorderSide(color: kPrimaryborder, width: 0.0))),
-                    backgroundColor: MaterialStateProperty.all(kPrimaryButtonBackgrounColor),
-                    padding: MaterialStateProperty.all(const EdgeInsets.symmetric(vertical: 10)),
+                    shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                        RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(0.0),
+                            side: const BorderSide(
+                                color: kPrimaryText, width: 0.0))),
+                    backgroundColor:
+                        MaterialStateProperty.all(kPrimaryButtonBackgrounColor),
+                    padding: MaterialStateProperty.all(
+                        const EdgeInsets.symmetric(vertical: 10)),
                   ),
                   onPressed: () {},
                   child: const Text(
                     'Edit',
                     textAlign: TextAlign.center,
-                    style: TextStyle(fontFamily: 'Lato', fontSize: 20, color: kPrimaryborder),
+                    style: TextStyle(
+                        fontFamily: 'Lato', fontSize: 20, color: kPrimaryText),
                   ),
                 ),
               ),
